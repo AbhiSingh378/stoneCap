@@ -13,7 +13,7 @@ import io
 #---------------------------------#
 # Page layout
 ## Page expands to full width
-st.set_page_config(page_title='The Machine Learning Algorithm Comparison App',
+st.set_page_config(page_title='The Algorithm Atlas Comparison App',
     layout='wide')
 #---------------------------------#
 # Model building
@@ -118,7 +118,7 @@ def imagedownload(plt, filename):
 
 #---------------------------------#
 st.write("""
-# The Machine Learning Algorithm Comparison App
+# The Algorithm Atlas Comparison App
 
 In this implementation, the **lazypredict** library is used for building several machine learning models at once.
 
