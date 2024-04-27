@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from lazypredict.Supervised import LazyRegressor
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
@@ -30,7 +30,9 @@ def build_model(df):
     # Encode categorical features
     categorical_features = X.select_dtypes(include=['object']).columns.tolist()
     if categorical_features:
-        X = pd.get_dummies(X, columns=categorical_features)
+        for feature in categorical_features:
+            le = LabelEncoder()
+            X[feature] = le.fit_transform(X[feature])
 
     st.markdown('**1.2. Dataset dimension**')
     st.write('X')
