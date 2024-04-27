@@ -1,12 +1,11 @@
 import streamlit as st
 import pandas as pd
 from lazypredict.Supervised import LazyRegressor
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.datasets import load_diabetes, fetch_california_housing
-from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
@@ -29,16 +28,9 @@ def build_model(df):
     X = df.drop(columns=[target_variable])
 
     # Encode categorical features
-    categorical_features = []  # Replace with your categorical feature names
-    for feature in categorical_features:
-        le = LabelEncoder()
-        X[feature] = le.fit_transform(X[feature])
-    
-    # One-hot encode categorical features
-    ohe = OneHotEncoder(handle_unknown="ignore", sparse=False)
-    X_encoded = pd.DataFrame(ohe.fit_transform(X.select_dtypes(include=['object'])))
-    X.drop(X.select_dtypes(include=['object']).columns, axis=1, inplace=True)
-    X = pd.concat([X, X_encoded], axis=1)
+    categorical_features = X.select_dtypes(include=['object']).columns.tolist()
+    if categorical_features:
+        X = pd.get_dummies(X, columns=categorical_features)
 
     st.markdown('**1.2. Dataset dimension**')
     st.write('X')
