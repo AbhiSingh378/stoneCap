@@ -11,14 +11,12 @@ import seaborn as sns
 import base64
 import io
 
-#---------------------------------#
-# Page layout
-## Page expands to full width
-st.set_page_config(page_title='The Algorithm Atlas Comparison App',
-    layout='wide')
+# Override OneHotEncoder class to remove 'sparse' argument
+class MyOneHotEncoder(OneHotEncoder):
+    def __init__(self, handle_unknown='error', categories='auto', drop=None):
+        super().__init__(handle_unknown=handle_unknown, categories=categories, drop=drop)
 
-#---------------------------------#
-# Model building
+# Replace OneHotEncoder with MyOneHotEncoder
 def build_model(df):
     df = df.loc[:100] # FOR TESTING PURPOSE, COMMENT THIS OUT FOR PRODUCTION
     
@@ -28,15 +26,11 @@ def build_model(df):
     X = df.drop(columns=[target_variable])
 
     # Encode categorical features
-    categorical_features = X.select_dtypes(include=['object']).columns.tolist()
-    if categorical_features:
-        for feature in categorical_features:
-            le = LabelEncoder()
-            X[feature] = le.fit_transform(X[feature])
-    
-    ohe = OneHotEncoder(handle_unknown="ignore")
-    X = ohe.fit_transform(X)
-    
+    categorical_features = []  # Replace with your categorical feature names
+    for feature in categorical_features:
+        le = LabelEncoder()
+        X[feature] = le.fit_transform(X[feature])
+
     st.markdown('**1.2. Dataset dimension**')
     st.write('X')
     st.info(X.shape)
