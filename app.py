@@ -21,8 +21,11 @@ st.set_page_config(page_title='The Algorithm Atlas Comparison App',
 # Model building
 def build_model(df):
     df = df.loc[:100] # FOR TESTING PURPOSE, COMMENT THIS OUT FOR PRODUCTION
-    X = df.iloc[:,:-1] # Using all column except for the last column as X
-    Y = df.iloc[:,-1] # Selecting the last column as Y
+    
+    # Select the target variable (Y)
+    target_variable = st.selectbox('Select the target variable:', df.columns)
+    Y = df[target_variable]
+    X = df.drop(columns=[target_variable])
 
     # Encode categorical features
     categorical_features = []  # Replace with your categorical feature names
@@ -60,52 +63,58 @@ def build_model(df):
 
     st.subheader('3. Plot of Model Performance (Test set)')
 
-    with st.markdown('**R-squared**'):
+    with st.expander("R-squared"):
         # Tall
         predictions_test["R-Squared"] = [0 if i < 0 else i for i in predictions_test["R-Squared"]]
-        plt.figure(figsize=(3, 9))
+        fig, ax = plt.subplots(figsize=(3, 9))
         sns.set_theme(style="whitegrid")
-        ax1 = sns.barplot(y=predictions_test.index, x="R-Squared", data=predictions_test)
-        ax1.set(xlim=(0, 1))
-        st.markdown(imagedownload(plt, 'plot-r2-tall.pdf'), unsafe_allow_html=True)
+        ax = sns.barplot(y=predictions_test.index, x="R-Squared", data=predictions_test)
+        ax.set(xlim=(0, 1))
+        st.pyplot(fig)
+        st.markdown(imagedownload(fig, 'plot-r2-tall.pdf'), unsafe_allow_html=True)
+        
         # Wide
-        plt.figure(figsize=(9, 3))
+        fig, ax = plt.subplots(figsize=(9, 3))
         sns.set_theme(style="whitegrid")
-        ax1 = sns.barplot(x=predictions_test.index, y="R-Squared", data=predictions_test)
-        ax1.set(ylim=(0, 1))
+        ax = sns.barplot(x=predictions_test.index, y="R-Squared", data=predictions_test)
+        ax.set(ylim=(0, 1))
         plt.xticks(rotation=90)
-        st.pyplot(plt)
-        st.markdown(imagedownload(plt, 'plot-r2-wide.pdf'), unsafe_allow_html=True)
+        st.pyplot(fig)
+        st.markdown(imagedownload(fig, 'plot-r2-wide.pdf'), unsafe_allow_html=True)
 
-    with st.markdown('**RMSE (capped at 50)**'):
+    with st.expander("RMSE (capped at 50)"):
         # Tall
         predictions_test["RMSE"] = [50 if i > 50 else i for i in predictions_test["RMSE"]]
-        plt.figure(figsize=(3, 9))
+        fig, ax = plt.subplots(figsize=(3, 9))
         sns.set_theme(style="whitegrid")
-        ax2 = sns.barplot(y=predictions_test.index, x="RMSE", data=predictions_test)
-        st.markdown(imagedownload(plt, 'plot-rmse-tall.pdf'), unsafe_allow_html=True)
+        ax = sns.barplot(y=predictions_test.index, x="RMSE", data=predictions_test)
+        st.pyplot(fig)
+        st.markdown(imagedownload(fig, 'plot-rmse-tall.pdf'), unsafe_allow_html=True)
+        
         # Wide
-        plt.figure(figsize=(9, 3))
+        fig, ax = plt.subplots(figsize=(9, 3))
         sns.set_theme(style="whitegrid")
-        ax2 = sns.barplot(x=predictions_test.index, y="RMSE", data=predictions_test)
+        ax = sns.barplot(x=predictions_test.index, y="RMSE", data=predictions_test)
         plt.xticks(rotation=90)
-        st.pyplot(plt)
-        st.markdown(imagedownload(plt, 'plot-rmse-wide.pdf'), unsafe_allow_html=True)
+        st.pyplot(fig)
+        st.markdown(imagedownload(fig, 'plot-rmse-wide.pdf'), unsafe_allow_html=True)
 
-    with st.markdown('**Calculation time**'):
+    with st.expander("Calculation time"):
         # Tall
         predictions_test["Time Taken"] = [0 if i < 0 else i for i in predictions_test["Time Taken"]]
-        plt.figure(figsize=(3, 9))
+        fig, ax = plt.subplots(figsize=(3, 9))
         sns.set_theme(style="whitegrid")
-        ax3 = sns.barplot(y=predictions_test.index, x="Time Taken", data=predictions_test)
-        st.markdown(imagedownload(plt, 'plot-calculation-time-tall.pdf'), unsafe_allow_html=True)
+        ax = sns.barplot(y=predictions_test.index, x="Time Taken", data=predictions_test)
+        st.pyplot(fig)
+        st.markdown(imagedownload(fig, 'plot-calculation-time-tall.pdf'), unsafe_allow_html=True)
+        
         # Wide
-        plt.figure(figsize=(9, 3))
+        fig, ax = plt.subplots(figsize=(9, 3))
         sns.set_theme(style="whitegrid")
-        ax3 = sns.barplot(x=predictions_test.index, y="Time Taken", data=predictions_test)
+        ax = sns.barplot(x=predictions_test.index, y="Time Taken", data=predictions_test)
         plt.xticks(rotation=90)
-        st.pyplot(plt)
-        st.markdown(imagedownload(plt, 'plot-calculation-time-wide.pdf'), unsafe_allow_html=True)
+        st.pyplot(fig)
+        st.markdown(imagedownload(fig, 'plot-calculation-time-wide.pdf'), unsafe_allow_html=True)
 
 # Download CSV data
 # https://discuss.streamlit.io/t/how-to-download-file-in-streamlit/1806
@@ -115,10 +124,10 @@ def filedownload(df, filename):
     href = f'<a href="data:file/csv;base64,{b64}" download={filename}>Download {filename} File</a>'
     return href
 
-def imagedownload(plt, filename):
+def imagedownload(fig, filename):
     s = io.BytesIO()
-    plt.savefig(s, format='pdf', bbox_inches='tight')
-    plt.close()
+    fig.savefig(s, format='pdf', bbox_inches='tight')
+    plt.close(fig)
     b64 = base64.b64encode(s.getvalue()).decode()  # strings <-> bytes conversions
     href = f'<a href="data:image/png;base64,{b64}" download={filename}>Download {filename} File</a>'
     return href
